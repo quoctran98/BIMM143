@@ -1,0 +1,57 @@
+---
+title: 'Class 6: Homework'
+author: "Quoc Tran"
+date: "April 25, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Plot the B-factor of protein-drug interaction
+
+Plot the B-factor along the polypeptide chain of multiple PDB objects, along with a heiarchy cluster of all the objects
+
+###Arguments
+
+ids: vector containing four letter PDB identifiers
+
+showSSE: logical; show marginal secondary structure elements in graph
+
+plotHierarchy: logical; plot hierarchy cluster
+
+```{r}
+plotBFactor <- function(ids, showSSE = TRUE, plotHierarchy = TRUE) {
+  
+  library(bio3d)
+  
+  allProteins.bFactor <- data.frame() # will store all b-factor vectors
+  
+  index <- 0
+  for (id in ids) {
+    protein <- read.pdb(id)
+    protein.chainA <-  trim.pdb(protein, chain="A", elety="CA") # PDB object of alpha chain
+    protein.bFactor <- protein.chainA$atom$b # vector of b-factor values
+    
+    sse <- NULL # sets sse to chain A if shown
+    if (showSSE) {
+      sse <- protein.chainA
+    }
+      
+    plotb3(protein.bFactor, sse = sse, typ = "l", ylab = "B-factor", main = id) # plots b-factor along residue
+    
+    allProteins.bFactor <- rbind(allProteins.bFactor, protein.bFactor)
+  }
+  
+  rownames(allProteins.bFactor) <- ids
+  if (plotHierarchy) { # plots hiearchical cluster
+    plot(hclust(dist(rbind(allProteins.bFactor))))
+  }
+}
+```
+
+```{r}
+plotBFactor(c("4AKE", "1AKE", "1E4Y"))
+```
+
