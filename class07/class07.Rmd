@@ -1,0 +1,159 @@
+---
+title: 'Class 7: R Functions and Packages'
+author: "Quoc Tran"
+date: "April 23, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Functions revisited
+
+We will source a file online with our functions from last time (downloaded the R file)
+
+```{r source rescale.R}
+source("rescale.R")
+```
+
+Try out the rescale() function from last time
+
+```{r use rescale()}
+rescale(1:10)
+```
+
+rescale2() catches any strings inside input arguments before running bulk of function
+
+```{r use rescale2()}
+rescale2("hi")
+```
+
+# Find missing NA values in two vectors
+
+Start with a simple example of the larger problem
+
+```{r simple example}
+x <- c(1,2,NA,3,NA)
+y <- c(NA,3,NA,3,4)
+
+is.na(x)
+is.na(y) # should return TRUE FALSE TRUE FALSE FALSE
+```
+
+Use the AND operator to find when both are true
+
+```{r use AND operator}
+is.na(x) & is.na(y) # expect: F F T F F
+```
+
+Use sum() to find total number of NA's in both
+
+```{r use sum()}
+sum(is.na(x) & is.na(y))
+```
+
+Now we can make this into a function
+
+```{r first function}
+  both_na <- function(x,y) {
+  sum(is.na(x) & is.na(y))
+  }
+```
+
+```{r test the function}
+x <- c(NA, 1, 2, 3, NA)
+y <- c(NA, 1, NA, 2, NA)
+
+both_na(x, y) # expect: 2
+```
+
+```{r test on various inputs}
+x <- c(NA, NA, NA)
+y <- c(1, NA, NA, NA)
+
+both_na(x, y) # expect: 2
+
+
+
+both_na(x, y) # expect: 2
+```
+
+The function recycles x to match the length of y! 1st index becomes the first missing one, 2nd becomes one after that
+
+We need to stop it if this happens
+
+```{r fixed function}
+x <- c(NA, NA, NA)
+y <- c(1, NA, NA, NA, NA, NA)
+both_na2(x,y)
+```
+
+both_na3 gives a better output with which()
+
+```{r fixed function with better ouput}
+x <- c(NA, NA, NA)
+y <- c(1, NA, NA)
+both_na3(x,y)
+```
+
+# Find intersections of two data sets
+
+```{r test data}
+df1
+df2
+```
+
+Get an even simpler data set
+
+```{r simpler test data}
+x <- df1$IDs
+y <- df2$IDs
+```
+
+Search for existing functionality: intersect()
+
+```{r use intersect()}
+intersect(x,y)
+```
+
+For our real function we want more data, expression in different experiements, etc.
+
+We need the indices of the vector where the intersection happens: use %in%
+
+```{r using %in%}
+x %in% y
+x[x %in% y]
+```
+
+Use cbind() and Rstudio shortcut Code > Extract Function
+
+```{r making gene_intersect()}
+gene_intersect <- function(x, y) {
+  cbind(x[x %in% y],
+        y[y %in% x])
+}
+
+gene_intersect(df1$IDs, df2$IDs)
+```
+
+gene_interesect2() is polished
+
+```{r gene_intersect2()}
+gene_intersect2(df1,df2)
+```
+
+gene_interesect3() and gene_intersect4() exist too
+
+# Calculate grade after dropping lowest score
+```{r test data}
+student1 <- c(100,100,100,100,100,100,100,90)
+student2 <- c(100,90,90,90,90,90,97,80)
+```
+
+Use min() to find lowest value
+
+```{r using min()}
+(sum(student1) - min(student1))/(length(student1) - 1)
+```
+
