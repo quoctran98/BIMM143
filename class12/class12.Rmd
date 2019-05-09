@@ -1,0 +1,44 @@
+---
+title: 'Class 12: Structural Bioinformatics II'
+author: "Quoc Tran"
+date: "5/9/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Loading 1HSG (HIV-1 protease + indinavir) from PDB
+```{r Load 1HSG}
+library(bio3d)
+file.name <- get.pdb("1HSG")
+hiv <- read.pdb(file.name)
+summary(hiv)
+```
+
+**Q1: What is the name of the two non protein resid values in this structure? What does resid
+correspond to and how would you get a listing of all residue values in this structure?**
+
+"HOH" and "MK1". "resid" corresponds to the amino acid residue that an atom belongs to.
+
+Trimming PDB files to seperate protein and ligand PDB files
+```{r Prepare Protein and Ligand PDB Files}
+prot <- trim.pdb(hiv, "protein")
+lig <- trim.pdb(hiv, "ligand")
+write.pdb(prot, file="1hsg_protein.pdb")
+write.pdb(lig, file="1hsg_ligand.pdb")
+```
+
+all.pdbqt comes from AutoDock Vina (using config.txt)
+```{r Inspecting Docking Results}
+res <- read.pdb("all.pdbqt", multi=TRUE)
+write.pdb(res, "results.pdb")
+```
+
+Finding root mean square distance for each ligand in all.pdbqt vs the original ligand in 1HSG
+```{r Finding Root Mean Squared}
+ori <- read.pdb("ligand.pdbqt")
+rmsd(ori, res)
+```
+These are RMSD for each ligand in all.pdbqt vs the original ligan in 1HSG!

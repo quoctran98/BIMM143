@@ -1,0 +1,109 @@
+---
+title: 'Lecture 11: Structural Bioinformatics I'
+author: "Quoc Tran"
+date: "5/7/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Question 1
+Download a CSV file from the PDB site (accessible from “Analyze” -> “PDB Statistics” > “by Experimental Method and Molecular Type”. Move this CSV file into your RStudio project and determine the percentage of structures solved by X-Ray and Electron Microscopy. From the website what proportion of structures are protein?
+```{r}
+pdbStats <- read.csv("data.csv", header=TRUE)
+pdbStats
+print(paste(round(sum(pdbStats$Total[1]) / sum(pdbStats$Total) * 100), "% of structures are from X-Ray Crystallography"))
+print(paste(round(sum(pdbStats$Total[3]) / sum(pdbStats$Total) * 100), "% of structures are from Electron Microscopy"))
+print(paste(round(sum(pdbStats$Proteins) / sum(pdbStats$Total) * 100), "% of structures are proteins."))
+```
+
+## Question 2
+Type HIV in the PDB website search box on the home page and determine how many HIV-1 protease structures are in the current PDB?
+
+1157 HIV-1 Proteases in PDB as of 2019-05-07: http://www.rcsb.org/pdb/results/results.do?tabtoshow=Current&qrid=5C72D346
+
+# Section3: Introduction to Bio3D in R
+
+```{r}
+library(bio3d)
+pdb <- read.pdb("1HSG")
+pdb
+```
+
+## Q6. How many amino acid residues are there in this pdb object and what are the two nonprotein residues?
+```{r}
+length(pdb$seqres)
+```
+
+## Q7. What type of R object is pdb$atom?
+
+```{r}
+str(pdb$atom)
+dim(pdb$atom)
+```
+
+## Q8. Use the Bio3D write.pdb() function to write out a protein only PDB file for viewing in VMD. Also write out a second separate PDB file for the ligand with residue name MK1
+
+```{r}
+prot.pdb <- atom.select(pdb, "protein", value=TRUE)
+write.pdb(prot.pdb, file="1hsg_protein.pdb")
+lig.pdb <- atom.select(pdb, "ligand", value=TRUE)
+write.pdb(lig.pdb, file="1hsg_ligand.pdb")
+```
+
+
+# Section 5: Example Application on Adenylate Kinase (Adk)
+```{r}
+aa <- get.seq("1ake_A")
+# Blast or hmmer search
+b <- blast.pdb(aa)
+# Plot a summary of search results
+hits <- plot(b)
+head(hits$pdb.id)
+```
+
+```{r}
+# Fetch PDBs
+files <- get.pdb(hits$pdb.id, path="pdbs", split=TRUE, gzip=TRUE)
+# Align structures
+pdbs <- pdbaln(files)
+# Vector containing PDB codes
+ids <- basename.pdb(pdbs$id)
+# Draw schematic alignment
+plot(pdbs, labels=ids)
+```
+
+```{r}
+# Calculate sequence conservation
+cons <- conserv(pdbs, method="entropy22")
+# SSE annotations
+sse <- pdbs2sse(pdbs, ind=1, rm.gaps=FALSE)
+# Plot conservation per residue
+plotb3(cons, sse=sse, ylab="Sequence entropy")
+```
+
+```{r}
+library(XML)
+library(RCurl)
+anno <- pdb.annotate(ids)
+print(unique(anno$source))
+```
+
+```{r}
+# find invariant core
+core <- core.find(pdbs)
+# superimpose all structures to core
+pdbs$xyz = pdbfit(pdbs, core)
+# Perform PCA
+pc.xray <- pca(pdbs)
+# Calculate RMSD
+rd <- rmsd(pdbs)
+# Structure-based clustering
+hc.rd <- hclust(dist(rd))
+grps.rd <- cutree(hc.rd, k=3)
+plot(pc.xray, 1:2, col="grey50", bg=grps.rd, pch=21, cex=1)
+```
+
