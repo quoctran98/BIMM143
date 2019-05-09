@@ -2,7 +2,7 @@
 title: 'Class 12: Structural Bioinformatics II'
 author: "Quoc Tran"
 date: "5/9/2019"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
