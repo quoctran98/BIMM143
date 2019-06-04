@@ -2,6 +2,8 @@
 
 This is all my classwork from Introduction to Bioinformatics: [BIMM 143 Spring 2019](https://bioboot.github.io/bimm143_S19) at UC San Diego.
 
+[Lectures 1-4: Introduction, Online Databases and Resources, Sequence Alignments](https://bioboot.github.io/bimm143_S19/lectures/#1)
+
 [Lecture 5: Data exploration and visualization in R](https://github.com/quoctran98/bimm143/blob/master/class05/class05.r)
 
 [Lecture 6: Writing functions in R](https://github.com/quoctran98/bimm143/blob/master/class06/class06.R)
@@ -14,11 +16,11 @@ This is all my classwork from Introduction to Bioinformatics: [BIMM 143 Spring 2
 
 [Lecture 10: Git](https://bioboot.github.io/bimm143_S19/lectures/#10)
 
-[Lecture 11: Structural Bioinformatics](https://github.com/quoctran98/bimm143/blob/master/class11/class11.Rmd)
+[Lecture 11: Structural Bioinformatics](https://github.com/quoctran98/bimm143/blob/master/class11/class11.md)
 
 [Lecture 12: Structural Bioinformatics II](https://github.com/quoctran98/bimm143/blob/master/class12/class12.md)
 
-[Lecture 13: Genome Informatics I](https://github.com/quoctran98/bimm143/blob/master/class13/class13.Rmd)
+[Lecture 13: Genome Informatics I](https://github.com/quoctran98/bimm143/blob/master/class13/class13.md)
 
 [Lecture 14: Transcriptomics](https://bioboot.github.io/bimm143_S19/lectures/#14)
 
@@ -28,4 +30,4 @@ This is all my classwork from Introduction to Bioinformatics: [BIMM 143 Spring 2
 
 [Lecture 17: Biological Network Analysis](https://github.com/quoctran98/bimm143/blob/master/class17/class17.Rmd)
 
-[Lecture 18: Cancer Genomics](https://github.com/quoctran98/bimm143/blob/master/class18/class18.Rmd)
+[Lecture 18: Cancer Genomics](https://github.com/quoctran98/bimm143/blob/master/class18/class18.md)
