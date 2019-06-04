@@ -2,7 +2,7 @@
 title: 'Class 7: R Functions and Packages'
 author: "Quoc Tran"
 date: "April 23, 2019"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}

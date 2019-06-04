@@ -2,7 +2,7 @@
 title: 'Lecture 11: Structural Bioinformatics I'
 author: "Quoc Tran"
 date: "5/7/2019"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
