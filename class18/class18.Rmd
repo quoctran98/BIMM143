@@ -1,0 +1,108 @@
+---
+title: 'Class 18: Cancer Genomics'
+author: "Quoc Tran"
+date: "5/30/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#1. The NCI Genomic Data Commons
+
+##Q1. How many Cases (i.e. patient samples) have been found to have p53 mutations?
+4,008 cases
+
+##Q2. What are the top 6 misssense mutations found in this gene? 
+Missense TP53 R175H, Missense TP53 R273C,	Missense TP53 R248Q,	Missense TP53 R273H,	Missense TP53 R248W,	Missense TP53 R282W
+	
+##Q3. Which domain of the protein (as annotated by PFAM) do these mutations reside in?
+DNA-binding domain
+
+##Q4. What are the top 6 primary sites (i.e. cancer locations such as Lung, Brain, etc.) with p53 mutations and how many primary sites have p53 mutations been found in? 
+Uterus, Ovary, Bronchus, Lung, Pancreas, Bladder
+
+##Q5. What is the most frequentely mutated position associated with cancer in the KRas protein (i.e. the amino acid with the most mutations)?
+Missense KRAS G12D
+
+##Q6. Are KRas mutations common in Pancreatic Adenocarcinoma (i.e. is the Pancreas a common ‘primary site’ for KRas mutations?).
+Yes
+
+##Q6. What is the ‘TGCA project’ with the most KRas mutations?
+TCGA-UCEC
+
+##Q7. What precent of cases for this ‘TGCA project’ have KRas mutations and what precent of cases have p53 mutations? 
+6 and 25
+
+##Q8. How many TGCA Pancreatic Adenocarcinoma cases (i.e. patients from the TCGA-PAAD project) have RNA-Seq data available?
+177
+
+#2. The GenomicDataCommons R package
+
+```{r}
+library(GenomicDataCommons)
+library(TCGAbiolinks)
+library(maftools)
+```
+
+```{r}
+GenomicDataCommons::status()
+```
+
+#3. Querying the GDC from R
+
+```{r}
+cases_by_project <- cases() %>%
+  facet("project.project_id") %>%
+  aggregations()
+head(cases_by_project)
+```
+
+##Q9. Write the R code to make a barplot of the cases per project. Lets plot this data with a log scale for the y axis (log="y"), rotated axis labels (las=2) and color the bar coresponding to the TCGA-PAAD project.
+
+```{r}
+x <- cases_by_project$project.project_id
+
+# Make a custom color vector for our plot
+colvec <- rep("lightblue", nrow(x))
+colvec[match("TCGA-PAAD",x$key)] <- "red"
+
+# Plot with 'log' for y axis and rotate labels with 'las'
+par(las = 2, mar = c(9,4,1,2))  
+barplot(x$doc_count, names.arg=x$key, log="y", col=colvec, las=2, cex.names=.5)
+```
+
+#Section 1. Protein sequences from healthy and tumor tissue
+
+##Q1: Identify sequence regions that contain all 9-mer peptides that are only found in the tumor
+
+```{r}
+library("bio3d")
+sequences <- read.fasta("lecture18_sequences.fa")
+alignment <- seqaln(sequences)
+ide <- conserv(alignment)
+gaps <- gap.inspect(alignment)$col
+ide <- ide[!gaps]
+mismatches <- which(ide < 1)
+mismatches
+```
+
+```{r}
+fasta_file <- rep.int(0, 17)
+for (val in mismatches) {
+  fasta_file <- rbind(alignment$ali[2,][(val-8):(val+8)], fasta_file)
+}
+fasta_file <- fasta_file[c(1:(nrow(fasta_file)-1)),]
+fasta_file[fasta_file == "-"] <- ""
+write.fasta(seqs = fasta_file, file = "nine_mers")
+```
+
+#Section 2. Patient HLA typing results and HLA binding prediction:
+
+##Q2: Identify 9-mer peptides in the identified sequence regions unique to the tumor that can be potentially presented to T cells.
+
+```{r}
+
+```
+

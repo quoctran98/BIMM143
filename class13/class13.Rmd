@@ -1,0 +1,30 @@
+---
+title: 'Class 13: Genome Informatics I'
+author: "Quoc Tran"
+date: "5/14/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Sample genotypes in the MXL 1000 Genome Project Data
+
+```{r}
+MXL <- read.csv("MXLensembl.csv", header=TRUE)
+table(MXL$Genotype..forward.strand.)
+(table((MXL$Genotype..forward.strand.)/nrow(MXL)))*100
+```
+
+```{r}
+library(seqinr)
+library(gtools)
+s2c("DDDDCDEDCDDDDBBDDDCC@")
+```
+
+```{r}
+final <- read.table("final.txt", header=TRUE)
+boxplot(final)
+```
+

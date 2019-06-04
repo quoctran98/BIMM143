@@ -1,0 +1,133 @@
+---
+title: "Class 15"
+author: "Quoc Tran"
+date: "5/21/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Importing Files
+```{r}
+library(DESeq2)
+
+featureCounts <- read.csv("GSE37704_featurecounts.csv", row.names = 1)
+metadata <- read.csv("GSE37704_metadata.csv", row.names = 1)
+
+head(metadata)
+head(featureCounts)
+```
+
+Remove "length" column of "featureCounts"
+
+```{r}
+# DON'T RUN MULTIPLE TIMES -- UH OH
+featureCounts <- as.matrix(featureCounts[,2:length(colnames(featureCounts))]) # [,-1] would remove first column -- very tricky
+head(featureCounts)
+```
+
+Remove rows with 0 data
+
+```{r}
+featureCounts <- featureCounts[rowSums(featureCounts) > 0,]
+head(featureCounts)
+```
+
+Running DeSeq2
+
+```{r}
+dds <- DESeqDataSetFromMatrix(countData = featureCounts, colData = metadata, design =~ condition)
+dds = DESeq(dds)
+```
+```{r}
+dds
+```
+```{r}
+res = results(dds, contrast = c("condition", "hoxa1_kd", "control_sirna"))
+summary(res)
+```
+```{r}
+# Make a color vector for all genes
+mycols <- rep("gray", nrow(res))
+
+# Color red the genes with absolute fold change above 2
+mycols[abs(res$log2FoldChange) > 2] <- "red"
+
+# Color blue those with adjusted p-value less than 0.01
+#  and absolute fold change more than 2
+inds <- (res$padj < 0.01) & (abs(res$log2FoldChange) > 2)
+mycols[inds] <- "blue"
+
+plot( res$log2FoldChange, -log(res$padj), col = mycols, xlab = "Log2(FoldChange)", ylab = "-Log(P-value)" )
+```
+```{r}
+library("AnnotationDbi")
+library("org.Hs.eg.db")
+columns(org.Hs.eg.db)
+```
+
+This broke, so Saeed gave me his "deseq_results.csv"
+
+```{r}
+res <- read.csv("deseq_results.csv", header = TRUE)
+```
+```{r}
+library(pathview)
+```
+```{r}
+library(gage)
+library(gageData)
+
+data(kegg.sets.hs)
+data(sigmet.idx.hs)
+
+# Focus on signaling and metabolic pathways only
+kegg.sets.hs = kegg.sets.hs[sigmet.idx.hs]
+
+# Examine the first 3 pathways
+head(kegg.sets.hs, 3)
+```
+```{r}
+foldchanges = res$log2FoldChange
+names(foldchanges) = res$entrez
+head(foldchanges)
+```
+```{r}
+# Get the results
+keggres = gage(foldchanges, gsets=kegg.sets.hs)
+```
+```{r}
+attributes(keggres)
+```
+```{r}
+# Look at the first few down (less) pathways
+head(keggres$less)
+```
+
+Section 3: Gene Ontology (GO)
+
+```{r}
+data(go.sets.hs)
+data(go.subs.hs)
+
+# Focus on Biological Process subset of GO
+gobpsets = go.sets.hs[go.subs.hs$BP]
+
+gobpres = gage(foldchanges, gsets=gobpsets, same.dir=TRUE)
+
+lapply(gobpres, head)
+```
+
+Section 4. Reactome Analysis
+
+```{r}
+sig_genes <- res[res$padj <= 0.05 & !is.na(res$padj), "symbol"]
+print(paste("Total number of significant genes:", length(sig_genes)))
+write.table(sig_genes, file="significant_genes.txt", row.names=FALSE, col.names=FALSE, quote=FALSE)
+```
+
+
+
+
